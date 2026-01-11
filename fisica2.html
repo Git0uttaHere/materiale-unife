@@ -1,0 +1,2395 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Fisica II - Vincenzi Donato - Dashboard Studio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #f3f4f6;
+      --card-bg: #ffffff;
+      --accent: #2563eb;
+      --accent-soft: #3b82f6;
+      --accent-light: #e0f2ff;
+      --text: #111827;
+      --text-soft: #6b7280;
+      --border-soft: #d1d5db;
+      --danger: #dc2626;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border-soft);
+      background: #ffffff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      color: var(--text);
+    }
+
+    header .subtitle {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+    }
+
+    .tag {
+      display: inline-flex;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--accent-soft);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    main {
+      padding: 16px 24px 32px;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border-soft);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: #f9fafb;
+    }
+
+    .card-header h2 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .card-header span {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+    }
+
+    .card-body {
+      padding: 12px 16px 16px;
+    }
+
+    /* Navigazione video */
+    .video-controls-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 8px 0 8px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .video-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+    }
+
+    .nav-btn {
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: #ffffff;
+      padding: 2px 8px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      line-height: 1.4;
+    }
+
+    .nav-btn:hover {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+
+    /* Video section */
+    .video-player-wrapper {
+      margin-bottom: 8px;
+      background: #000000;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border-soft);
+    }
+
+    .video-iframe-container {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* 16:9 */
+      background: #000000;
+    }
+
+    .video-iframe-container iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      border-radius: 0;
+    }
+
+    .video-hint {
+      font-size: 0.8rem;
+      color: #e5e7eb;
+      padding: 6px 10px;
+      border-top: 1px solid #111827;
+      background: #0f172a;
+    }
+
+    .video-hint strong {
+      color: #ffffff;
+    }
+
+    .playlist {
+      max-height: 320px;
+      overflow-y: auto;
+      padding-right: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) #f3f4f6;
+    }
+
+    .playlist::-webkit-scrollbar {
+      width: 6px;
+    }
+    .playlist::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 999px;
+    }
+    .playlist::-webkit-scrollbar-track {
+      background: #f3f4f6;
+    }
+
+    .playlist-item {
+      width: 100%;
+      border: none;
+      background: transparent;
+      display: flex;
+      text-align: left;
+      padding: 8px;
+      margin-bottom: 4px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.12s ease, border 0.12s ease, transform 0.05s ease;
+      border: 1px solid transparent;
+      position: relative;
+    }
+
+    .playlist-item:hover {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+      transform: translateY(-1px);
+    }
+
+    .playlist-item.active {
+      border-color: var(--accent-soft);
+      background: #dbeafe;
+    }
+
+    .playlist-item.seen:not(.active) {
+      background: #f3f4ff;
+      border-color: #e0e7ff;
+    }
+
+    .playlist-thumbnail {
+      width: 72px;
+      height: 40px;
+      border-radius: 6px;
+      background: var(--accent-soft);
+      margin-right: 10px;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .playlist-thumbnail .play-icon {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.8rem;
+      color: #ffffff;
+    }
+
+    .playlist-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .playlist-title {
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text);
+    }
+
+    .playlist-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1px 6px;
+      border-radius: 999px;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 1px solid;
+    }
+
+    .badge-lesson {
+      border-color: #cbd5f5;
+      color: #4b5563;
+      background: #f9fafb;
+    }
+
+    .badge-tutorato {
+      border-color: #2563eb;
+      color: #1d4ed8;
+      background: #eff6ff;
+    }
+
+    .badge-extra {
+      border-color: #fb923c;
+      color: #c05621;
+      background: #ffedd5;
+    }
+
+    .playlist-item.tutorato .playlist-thumbnail {
+      background: #60a5fa;
+    }
+
+    .seen-flag {
+      font-size: 0.7rem;
+      color: #16a34a;
+    }
+
+    /* Pomodoro */
+    .pomodoro-section .card-body {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .pomodoro-timer {
+      font-size: 2.2rem;
+      font-weight: 600;
+      text-align: center;
+      letter-spacing: 0.08em;
+      padding: 8px 0;
+      border-radius: 10px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e293b;
+    }
+
+    .pomodoro-controls {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 6px 14px;
+      border: 1px solid var(--border-soft);
+      background: #ffffff;
+      color: var(--text);
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.12s ease, transform 0.05s ease, box-shadow 0.12s, border 0.12s;
+    }
+
+    .btn:hover {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+      box-shadow: 0 2px 6px rgba(15,23,42,0.08);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      border-color: var(--accent-soft);
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-danger {
+      border-color: #fecaca;
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .btn-danger:hover {
+      background: #fecaca;
+      border-color: #fca5a5;
+    }
+
+    .btn-small {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+    }
+
+    .pomodoro-progress {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+    }
+
+    .pomodoro-dots {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .pomodoro-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: #ffffff;
+    }
+
+    .pomodoro-dot.done {
+      background: #3b82f6;
+      border-color: #2563eb;
+    }
+
+    .pomodoro-info {
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      line-height: 1.4;
+    }
+
+    .pomodoro-info strong {
+      color: var(--text);
+    }
+
+    /* Notes & walkthrough */
+    .notes-section .card-body,
+    .walkthrough-section .card-body {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 0.85rem;
+    }
+
+    .notes-group {
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: #f9fafb;
+      border: 1px solid var(--border-soft);
+    }
+
+    .notes-group-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .notes-group-title h3 {
+      margin: 0;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .notes-group-title span {
+      font-size: 0.75rem;
+      color: var(--text-soft);
+    }
+
+    /* Anteprima materiale */
+    .material-preview-wrapper {
+      margin-bottom: 10px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border-soft);
+      background: #e5f0ff;
+    }
+
+    .material-iframe-container {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* 16:9, come il videoplayer */
+      background: #0b1120;
+    }
+
+    .material-iframe-container iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .material-hint {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      padding: 6px 10px;
+      background: #eff6ff;
+      border-top: 1px solid var(--border-soft);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .material-hint strong {
+      color: var(--text);
+    }
+
+    .material-info {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+    }
+
+    /* Griglia materiale */
+    .resources-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .resource-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 10px;
+      background: #ffffff;
+      border: 1px solid var(--border-soft);
+      transition: border 0.12s ease, box-shadow 0.12s ease, transform 0.05s ease, background 0.12s ease;
+      cursor: pointer;
+    }
+
+    .resource-card:hover {
+      border-color: #bfdbfe;
+      box-shadow: 0 2px 6px rgba(15,23,42,0.08);
+      background: #f9fafb;
+      transform: translateY(-1px);
+    }
+
+    .resource-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #ffffff;
+      flex-shrink: 0;
+    }
+
+    .ext-pdf {
+      background: #2563eb;
+    }
+    .ext-docx {
+      background: #0ea5e9;
+    }
+    .ext-ppt {
+      background: #f97316;
+    }
+    .ext-img {
+      background: #22c55e;
+    }
+    .ext-svg {
+      background: #a855f7;
+    }
+    .ext-zip {
+      background: #6b7280;
+    }
+
+    .resource-content {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .resource-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: space-between;
+      min-width: 0;
+    }
+
+    .resource-title {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #1d4ed8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .resource-open {
+      font-size: 0.8rem;
+      color: #6b7280;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .resource-open:hover {
+      color: #1e40af;
+      text-decoration: underline;
+    }
+
+    .resource-meta {
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .resource-pill {
+      padding: 1px 6px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      font-size: 0.7rem;
+      background: #f9fafb;
+    }
+
+    .resource-date {
+      font-size: 0.74rem;
+    }
+
+    /* Walkthrough */
+    .walkthrough-section ol {
+      margin: 4px 0 0;
+      padding-left: 18px;
+    }
+
+    .walkthrough-section li {
+      margin-bottom: 6px;
+    }
+
+    .walkthrough-section ul {
+      margin: 2px 0 6px;
+      padding-left: 16px;
+    }
+
+    .walkthrough-section li strong {
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Fisica II · Vincenzi Donato</h1>
+      <div class="subtitle">Polo Scientifico Tecnologico (Cattedrale) · Aula 05 / 02 · Dashboard di studio</div>
+    </div>
+    <div class="tag">Modalità deep work</div>
+  </header>
+
+  <main>
+    <!-- SEZIONE VIDEO (in alto, a tutta larghezza) -->
+    <section class="card video-section">
+      <div class="card-header">
+        <div>
+          <h2>Lezioni &amp; Tutorati</h2>
+          <span>Player stile YouTube · ordine cronologico · tutorati in blu</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="video-player-wrapper">
+          <div class="video-iframe-container">
+            <iframe
+              id="videoPlayer"
+              src=""
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+            ></iframe>
+          </div>
+          <div class="video-hint">
+            <strong>Nota:</strong> i video sono su Google Drive. Devi essere loggato con l'account abilitato per poterli
+            riprodurre. Usa il tasto del player per il <strong>full screen</strong>.
+          </div>
+        </div>
+
+        <!-- Slider a frecce + Segna come visto -->
+        <div class="video-controls-row">
+          <div class="video-nav">
+            <button id="prevVideoBtn" class="nav-btn" aria-label="Video precedente">◀</button>
+            <span id="videoPosition">1 / 33</span>
+            <button id="nextVideoBtn" class="nav-btn" aria-label="Video successivo">▶</button>
+          </div>
+          <button id="markSeenBtn" class="btn btn-small">
+            ✓ Segna come visto
+          </button>
+        </div>
+
+        <div class="playlist" id="playlist"></div>
+      </div>
+    </section>
+
+    <!-- POMODORO -->
+    <section class="card pomodoro-section">
+      <div class="card-header">
+        <div>
+          <h2>Timer Pomodoro</h2>
+          <span>25 minuti · 8 pomodori · reset automatico alle 06:00 (GMT+1)</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div id="pomodoro-timer" class="pomodoro-timer">25:00</div>
+
+        <div class="pomodoro-controls">
+          <button id="startPauseBtn" class="btn btn-primary">
+            ▶ Avvia
+          </button>
+          <button id="resetPomodoroBtn" class="btn btn-small">
+            ↺ Reset pomodoro
+          </button>
+          <button id="resetDayBtn" class="btn btn-small btn-danger">
+            ✕ Reset giornata
+          </button>
+        </div>
+
+        <div class="pomodoro-progress">
+          <div id="pomodoro-count">0 / 8 pomodori</div>
+          <div id="pomodoro-dots" class="pomodoro-dots"></div>
+        </div>
+
+        <div class="pomodoro-info">
+          Ogni <strong>pomodoro</strong> sono 25 minuti di concentrazione totale (niente telefono, niente notifiche).
+          Dopo ogni pomodoro fai una <strong>pausa breve di 5 minuti</strong>; dopo 4 pomodori consecutivi, pausa più lunga
+          di 15–20 minuti.
+        </div>
+      </div>
+    </section>
+
+    <!-- NOTE + ANTEPRIMA -->
+    <section class="card notes-section">
+      <div class="card-header">
+        <div>
+          <h2>Materiale del corso</h2>
+          <span>Anteprima stile player + note raggruppate</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <!-- ANTEPRIMA MATERIALE -->
+        <div class="material-preview-wrapper">
+          <div class="material-iframe-container">
+            <iframe
+              id="materialPreview"
+              src=""
+              allow="fullscreen"
+            ></iframe>
+          </div>
+          <div class="material-hint">
+            <span><strong>Anteprima materiale</strong> · clicca una card nella griglia per vedere il file qui sopra.</span>
+            <span class="material-info" id="materialInfo">Nessun file selezionato.</span>
+          </div>
+        </div>
+
+        <!-- Background / introduzione -->
+        <div class="notes-group">
+          <div class="notes-group-title">
+            <h3>1. Background &amp; introduzione</h3>
+            <span>Per entrare nel corso con il piede giusto</span>
+          </div>
+          <div class="resources-grid">
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1E1OdiiuEqN3PFdKyn3BrhUUWowICKRgU/view?usp=classroom_web&authuser=3"
+              data-title="Lezione 1 (background)"
+              data-date="26/09/2021"
+              data-type="Introduzione"
+            >
+              <div class="resource-icon ext-pdf">PDF</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Lezione 1 (background)</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1E1OdiiuEqN3PFdKyn3BrhUUWowICKRgU/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Introduzione</span>
+                  <span class="resource-date">26/09/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1v334CI9qWc8O-7WXwPrPA7emBqXGHRUE/view?usp=classroom_web&authuser=3"
+              data-title="Estratto &quot;Griffiths - Electrodynamics&quot;"
+              data-date="26/09/2021"
+              data-type="Testo di riferimento"
+            >
+              <div class="resource-icon ext-pdf">PDF</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Estratto &quot;David J. Griffiths - Electrodynamics&quot;</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1v334CI9qWc8O-7WXwPrPA7emBqXGHRUE/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Testo di riferimento</span>
+                  <span class="resource-date">26/09/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1CeDCGO5VQkbz_nEP_3SVz49wzMDgCrgx/view?usp=classroom_web&authuser=3"
+              data-title="Roadmap Elettricità e Magnetismo"
+              data-date="04/10/2021"
+              data-type="Roadmap"
+            >
+              <div class="resource-icon ext-pdf">PDF</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Roadmap Elettricità e Magnetismo fino a Coulomb</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1CeDCGO5VQkbz_nEP_3SVz49wzMDgCrgx/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Roadmap</span>
+                  <span class="resource-date">04/10/2021</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Esperimenti / immagini -->
+        <div class="notes-group">
+          <div class="notes-group-title">
+            <h3>2. Esperimenti, schemi e immagini</h3>
+            <span>Per visualizzare i concetti</span>
+          </div>
+          <div class="resources-grid">
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1lBk1DYz4mxhfd8xr3heY-GaNQc7-9eR8/view?usp=classroom_web&authuser=3"
+              data-title="CoulombExperiment_rev B"
+              data-date="04/10/2021"
+              data-type="Presentazione"
+            >
+              <div class="resource-icon ext-ppt">PPT</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">CoulombExperiment_rev B</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1lBk1DYz4mxhfd8xr3heY-GaNQc7-9eR8/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Presentazione</span>
+                  <span class="resource-date">04/10/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1L8MS0epe5qAv3zb_uZVJ6BE159lBq2-3/view?usp=classroom_web&authuser=3"
+              data-title="Semianello: campo e potenziale"
+              data-date="21/10/2021"
+              data-type="Schema"
+            >
+              <div class="resource-icon ext-svg">SVG</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Semianello: campo e potenziale in X</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1L8MS0epe5qAv3zb_uZVJ6BE159lBq2-3/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Schema</span>
+                  <span class="resource-date">21/10/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1YZ-A1EEWI3XssHMUshPuLWJ5o7_hqyt4/view?usp=classroom_web&authuser=3"
+              data-title="IMG_20211115_1917374"
+              data-date="15/11/2021"
+              data-type="Foto lavagna"
+            >
+              <div class="resource-icon ext-img">IMG</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">IMG_20211115_1917374</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1YZ-A1EEWI3XssHMUshPuLWJ5o7_hqyt4/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Foto lavagna</span>
+                  <span class="resource-date">15/11/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1kbpD7djjc6g7djSHWm_ob6ZG1lcc0LF-/view?usp=classroom_web&authuser=3"
+              data-title="WhatsApp Image 2021-11-28 18.30.47"
+              data-date="28/11/2021"
+              data-type="Foto"
+            >
+              <div class="resource-icon ext-img">IMG</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">WhatsApp Image 2021-11-28 18.30.47</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1kbpD7djjc6g7djSHWm_ob6ZG1lcc0LF-/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Foto</span>
+                  <span class="resource-date">28/11/2021</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Appunti di lezione / dispense -->
+        <div class="notes-group">
+          <div class="notes-group-title">
+            <h3>3. Appunti di lezione &amp; dispense</h3>
+            <span>Versione scritta delle spiegazioni a lezione</span>
+          </div>
+          <div class="resources-grid">
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/17FbtGPrCGw0gsgW_NM28iMSGzbJG5jwY/view?usp=classroom_web&authuser=3"
+              data-title="Blackboard Notes Commentate 1"
+              data-date="04/10/2021"
+              data-type="Note commentate"
+            >
+              <div class="resource-icon ext-pdf">PDF</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Blackboard Notes Commentate 1 (Coulomb)</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/17FbtGPrCGw0gsgW_NM28iMSGzbJG5jwY/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Note commentate</span>
+                  <span class="resource-date">04/10/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1EvZtOdUpDJlNgo8psKIKOJC8pdqbnzqL/view?usp=classroom_web&authuser=3"
+              data-title="Dispense 15_10_2021"
+              data-date="15/10/2021"
+              data-type="Dispense"
+            >
+              <div class="resource-icon ext-pdf">PDF</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Dispense 15_10_2021</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1EvZtOdUpDJlNgo8psKIKOJC8pdqbnzqL/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Dispense</span>
+                  <span class="resource-date">15/10/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1D1dzbDBCzoq6EOrUbTsnI_gs2fjiu_X-/view?usp=classroom_web&authuser=3"
+              data-title="Lezione 1 · 15/10/2021"
+              data-date="15/10/2021"
+              data-type="Appunti Word"
+            >
+              <div class="resource-icon ext-docx">DOCX</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Lezione 1 · 15/10/2021</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1D1dzbDBCzoq6EOrUbTsnI_gs2fjiu_X-/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Appunti Word</span>
+                  <span class="resource-date">15/10/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/16eg6Ai6ObYazl74A6Djwg9IXb9tKSHda/view?usp=classroom_web&authuser=3"
+              data-title="Lezione · 22/10/2021 (PDF)"
+              data-date="22/10/2021"
+              data-type="Lezione PDF"
+            >
+              <div class="resource-icon ext-pdf">PDF</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Lezione · 22/10/2021 (PDF)</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/16eg6Ai6ObYazl74A6Djwg9IXb9tKSHda/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Lezione PDF</span>
+                  <span class="resource-date">22/10/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1OQTjVreF2D36dn3fDkq8uWZbwaShEo_P/view?usp=classroom_web&authuser=3"
+              data-title="Lezione 2 · 22/10/2021"
+              data-date="22/10/2021"
+              data-type="Appunti Word"
+            >
+              <div class="resource-icon ext-docx">DOCX</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Lezione 2 · 22/10/2021</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1OQTjVreF2D36dn3fDkq8uWZbwaShEo_P/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Appunti Word</span>
+                  <span class="resource-date">22/10/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/15qrZ78zHeqTpi3PDpd0XLGuZQsCYFUsT/view?usp=classroom_web&authuser=3"
+              data-title="Lezione 3 · 29/10/2021 (DOCX)"
+              data-date="29/10/2021"
+              data-type="Appunti Word"
+            >
+              <div class="resource-icon ext-docx">DOCX</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Lezione 3 · 29/10/2021 (DOCX)</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/15qrZ78zHeqTpi3PDpd0XLGuZQsCYFUsT/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Appunti Word</span>
+                  <span class="resource-date">29/10/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1ciDGtNGUiD3ycNOr_jJDsg08o-iVK8t4/view?usp=classroom_web&authuser=3"
+              data-title="Lezione 3 · 29/10/2021 (PDF)"
+              data-date="30/10/2021"
+              data-type="Lezione PDF"
+            >
+              <div class="resource-icon ext-pdf">PDF</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Lezione 3 · 29/10/2021 (PDF)</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1ciDGtNGUiD3ycNOr_jJDsg08o-iVK8t4/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Lezione PDF</span>
+                  <span class="resource-date">30/10/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1P0PXstJyspwkbsrX09xMg_e24kN8rx-A/view?usp=classroom_web&authuser=3"
+              data-title="Lezione 4 · 05/11/2021 (PDF)"
+              data-date="05/11/2021"
+              data-type="Lezione PDF"
+            >
+              <div class="resource-icon ext-pdf">PDF</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Lezione 4 · 05/11/2021 (PDF)</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1P0PXstJyspwkbsrX09xMg_e24kN8rx-A/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Lezione PDF</span>
+                  <span class="resource-date">05/11/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1b7A8QSUKvjRaeGLcoxv2r6Br_Xv6Of0w/view?usp=classroom_web&authuser=3"
+              data-title="Lezione 4 · 05/11/2021 (DOCX)"
+              data-date="05/11/2021"
+              data-type="Appunti Word"
+            >
+              <div class="resource-icon ext-docx">DOCX</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Lezione 4 · 05/11/2021 (DOCX)</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1b7A8QSUKvjRaeGLcoxv2r6Br_Xv6Of0w/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Appunti Word</span>
+                  <span class="resource-date">05/11/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1KxGQqZf8JqMbi2CqGWtCTtD9hNGdUk96/view?usp=classroom_web&authuser=3"
+              data-title="Lezione 5 · 12/11/2021 (DOCX)"
+              data-date="12/11/2021"
+              data-type="Appunti Word"
+            >
+              <div class="resource-icon ext-docx">DOCX</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Lezione 5 · 12/11/2021 (DOCX)</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1KxGQqZf8JqMbi2CqGWtCTtD9hNGdUk96/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Appunti Word</span>
+                  <span class="resource-date">12/11/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1jH_koYDCyk6A40tgei6aIBR9fbnF4NoR/view?usp=classroom_web&authuser=3"
+              data-title="Lezione 5 · 12/11/2021 (PDF)"
+              data-date="13/11/2021"
+              data-type="Lezione PDF"
+            >
+              <div class="resource-icon ext-pdf">PDF</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Lezione 5 · 12/11/2021 (PDF)</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1jH_koYDCyk6A40tgei6aIBR9fbnF4NoR/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Lezione PDF</span>
+                  <span class="resource-date">13/11/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1AJZnK1B1sPlr4KtWHGLol6FMN9EjK75r/view?usp=classroom_web&authuser=3"
+              data-title="Lezione 6 · 19/11/2021 (PDF)"
+              data-date="19/11/2021"
+              data-type="Lezione PDF"
+            >
+              <div class="resource-icon ext-pdf">PDF</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Lezione 6 · 19/11/2021 (PDF)</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1AJZnK1B1sPlr4KtWHGLol6FMN9EjK75r/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Lezione PDF</span>
+                  <span class="resource-date">19/11/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1ihgEGFK8nf2OBdgTvLBUEpdtThfIZXEs/view?usp=classroom_web&authuser=3"
+              data-title="Lezione 6 · 19/11/2021 (DOCX)"
+              data-date="19/11/2021"
+              data-type="Appunti Word"
+            >
+              <div class="resource-icon ext-docx">DOCX</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Lezione 6 · 19/11/2021 (DOCX)</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1ihgEGFK8nf2OBdgTvLBUEpdtThfIZXEs/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Appunti Word</span>
+                  <span class="resource-date">19/11/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1l2bgW8vBgwJ-YuSO9QgC747GbZuAtxiO/view?usp=classroom_web&authuser=3"
+              data-title="Lezione 7 · 26/11/2021 (PDF)"
+              data-date="26/11/2021"
+              data-type="Lezione PDF"
+            >
+              <div class="resource-icon ext-pdf">PDF</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Lezione 7 · 26/11/2021 (PDF)</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1l2bgW8vBgwJ-YuSO9QgC747GbZuAtxiO/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Lezione PDF</span>
+                  <span class="resource-date">26/11/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1SuVcjBXGA3jBim4r3zEPhnCjFWq7gHmk/view?usp=classroom_web&authuser=3"
+              data-title="Lezione 7 · 26/11/2021 (DOCX)"
+              data-date="26/11/2021"
+              data-type="Appunti Word"
+            >
+              <div class="resource-icon ext-docx">DOCX</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Lezione 7 · 26/11/2021 (DOCX)</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1SuVcjBXGA3jBim4r3zEPhnCjFWq7gHmk/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Appunti Word</span>
+                  <span class="resource-date">26/11/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1yYgVkav-K-c2ZYNc6ELCm7svoAyjc2Fj/view?usp=classroom_web&authuser=3"
+              data-title="Lezione 8 · 03/12/2021 (PDF)"
+              data-date="03/12/2021"
+              data-type="Lezione PDF"
+            >
+              <div class="resource-icon ext-pdf">PDF</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Lezione 8 · 03/12/2021 (PDF)</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1yYgVkav-K-c2ZYNc6ELCm7svoAyjc2Fj/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Lezione PDF</span>
+                  <span class="resource-date">03/12/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/16qn5KDYk4UMwSbT1w86eBcG2rx_5fYeF/view?usp=classroom_web&authuser=3"
+              data-title="Lezione 8 · 03/12/2021 (DOCX)"
+              data-date="03/12/2021"
+              data-type="Appunti Word"
+            >
+              <div class="resource-icon ext-docx">DOCX</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Lezione 8 · 03/12/2021 (DOCX)</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/16qn5KDYk4UMwSbT1w86eBcG2rx_5fYeF/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Appunti Word</span>
+                  <span class="resource-date">03/12/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1T4nrJQ2Az3E7DNyE9sT5niyzj-16vza2/view?usp=classroom_web&authuser=3"
+              data-title="Lezione 9 · 10/12/2021 (DOCX)"
+              data-date="10/12/2021"
+              data-type="Appunti Word"
+            >
+              <div class="resource-icon ext-docx">DOCX</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Lezione 9 · 10/12/2021 (DOCX)</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1T4nrJQ2Az3E7DNyE9sT5niyzj-16vza2/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Appunti Word</span>
+                  <span class="resource-date">10/12/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1S2Hl1Pk37crtpOrdK6ifLgbv9_M2-fKu/view?usp=classroom_web&authuser=3"
+              data-title="Lezione 9 · 10/12/2021 (PDF)"
+              data-date="12/12/2021"
+              data-type="Lezione PDF"
+            >
+              <div class="resource-icon ext-pdf">PDF</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Lezione 9 · 10/12/2021 (PDF)</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1S2Hl1Pk37crtpOrdK6ifLgbv9_M2-fKu/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Lezione PDF</span>
+                  <span class="resource-date">12/12/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1YqIqZMFcqXnOI7mcMlwzKXJJ1TFSBc1T/view?usp=classroom_web&authuser=3"
+              data-title="DERIVATE"
+              data-date="17/12/2021"
+              data-type="Richiamo analisi"
+            >
+              <div class="resource-icon ext-pdf">PDF</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">DERIVATE</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1YqIqZMFcqXnOI7mcMlwzKXJJ1TFSBc1T/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Richiamo analisi</span>
+                  <span class="resource-date">17/12/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1Qaz-2joAOkotsNdkJC3Pl6gPeM4zKsBR/view?usp=classroom_web&authuser=3"
+              data-title="AGENDA - Lavori in corso a Fisica 2022"
+              data-date="24/02/2022"
+              data-type="Agenda corso"
+            >
+              <div class="resource-icon ext-pdf">PDF</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">AGENDA - Lavori in corso a Fisica 2022</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1Qaz-2joAOkotsNdkJC3Pl6gPeM4zKsBR/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Agenda corso</span>
+                  <span class="resource-date">24/02/2022</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tutorati / esercizi scritti -->
+        <div class="notes-group">
+          <div class="notes-group-title">
+            <h3>4. Tutorati &amp; esercizi scritti</h3>
+            <span>Per allenarti sui problemi</span>
+          </div>
+          <div class="resources-grid">
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1L2d-iPZl_brylrjDHeSrqC4X_lDuLNIL/view?usp=classroom_web&authuser=3"
+              data-title="Esercizio Legge FNL"
+              data-date="15/12/2021"
+              data-type="Esercizio"
+            >
+              <div class="resource-icon ext-pdf">PDF</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Esercizio Legge FNL</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1L2d-iPZl_brylrjDHeSrqC4X_lDuLNIL/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Esercizio</span>
+                  <span class="resource-date">15/12/2021</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulari -->
+        <div class="notes-group">
+          <div class="notes-group-title">
+            <h3>5. Formulari e riassunti chiave</h3>
+            <span>Per il ripasso finale e gli esami</span>
+          </div>
+          <div class="resources-grid">
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1F7-qsprR7MpwZAepOf3gF8UtnPjjPgBn/view?usp=classroom_web&authuser=3"
+              data-title="Formulario EM - Brochure1"
+              data-date="17/12/2021"
+              data-type="Formulario EM"
+            >
+              <div class="resource-icon ext-pdf">PDF</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Formulario EM - Brochure1</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1F7-qsprR7MpwZAepOf3gF8UtnPjjPgBn/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Formulario EM</span>
+                  <span class="resource-date">17/12/2021</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/12YXIP8Y4tLTVObDO_UUwPjKVFrJYM7d0/view?usp=classroom_web&authuser=3"
+              data-title="Formulario OO - Brochure1"
+              data-date="17/12/2021"
+              data-type="Formulario OO"
+            >
+              <div class="resource-icon ext-pdf">PDF</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Formulario OO - Brochure1</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/12YXIP8Y4tLTVObDO_UUwPjKVFrJYM7d0/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Formulario OO</span>
+                  <span class="resource-date">17/12/2021</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Esami -->
+        <div class="notes-group">
+          <div class="notes-group-title">
+            <h3>6. Esami passati &amp; materiale d'esame</h3>
+            <span>Per simulare la prova ufficiale</span>
+          </div>
+          <div class="resources-grid">
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1iOEyGzyFRGXuMR984QhmjWiSU6ElwXWJ/view?usp=classroom_web&authuser=3"
+              data-title="26-05-2016 Elettronica"
+              data-date="2016"
+              data-type="Tema d'esame"
+            >
+              <div class="resource-icon ext-docx">DOCX</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">26-05-2016 Elettronica</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1iOEyGzyFRGXuMR984QhmjWiSU6ElwXWJ/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Tema d'esame</span>
+                  <span class="resource-date">2016</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/10GJ2P8rIlbXMkl1TPsLfm2lSOOkMonwQ/view?usp=classroom_web&authuser=3"
+              data-title="Testo Esami AA 2013-2014"
+              data-date="2013–2014"
+              data-type="Raccolta esami"
+            >
+              <div class="resource-icon ext-zip">ZIP</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Testo Esami AA 2013-2014</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/10GJ2P8rIlbXMkl1TPsLfm2lSOOkMonwQ/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Raccolta esami</span>
+                  <span class="resource-date">2013–2014</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1mgOxpRlNUOq9VXJ9sa2oUPqfc0-9kVmH/view?usp=classroom_web&authuser=3"
+              data-title="Esami Fisica 2 (2015)"
+              data-date="2015"
+              data-type="Raccolta esami"
+            >
+              <div class="resource-icon ext-zip">ZIP</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Esami Fisica 2 (2015)</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1mgOxpRlNUOq9VXJ9sa2oUPqfc0-9kVmH/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Raccolta esami</span>
+                  <span class="resource-date">2015</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1XjQNA_HRw2zpSMSgeWiwLqRX6JI9N_pC/view?usp=classroom_web&authuser=3"
+              data-title="Esame Fisica 2 · 26/01/2017 (Meccanica)"
+              data-date="2017"
+              data-type="Esame svolto"
+            >
+              <div class="resource-icon ext-pdf">PDF</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Esame Fisica 2 · 26/01/2017 (Meccanica)</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1XjQNA_HRw2zpSMSgeWiwLqRX6JI9N_pC/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Esame svolto</span>
+                  <span class="resource-date">2017</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/10qmuGFf38iayPjuanWQiAs19jeXYeF9f/view?usp=classroom_web&authuser=3"
+              data-title="Esame Fisica 2 Elettronica · 15/02/2018"
+              data-date="2018"
+              data-type="Esame svolto"
+            >
+              <div class="resource-icon ext-pdf">PDF</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Esame Fisica 2 Elettronica · 15/02/2018</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/10qmuGFf38iayPjuanWQiAs19jeXYeF9f/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Esame svolto</span>
+                  <span class="resource-date">2018</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="resource-card"
+              data-url="https://drive.google.com/file/d/1iJxXPFC7uEXUSVhzmnbBzJE31UanLKS_/view?usp=classroom_web&authuser=3"
+              data-title="Esame Fisica 2 · 14/09/2018"
+              data-date="2018"
+              data-type="Esame svolto"
+            >
+              <div class="resource-icon ext-pdf">PDF</div>
+              <div class="resource-content">
+                <div class="resource-header">
+                  <div class="resource-title">Esame Fisica 2 · 14/09/2018</div>
+                  <a
+                    class="resource-open"
+                    href="https://drive.google.com/file/d/1iJxXPFC7uEXUSVhzmnbBzJE31UanLKS_/view?usp=classroom_web&authuser=3"
+                    target="_blank"
+                    title="Apri in Google Drive"
+                  >↗</a>
+                </div>
+                <div class="resource-meta">
+                  <span class="resource-pill">Esame svolto</span>
+                  <span class="resource-date">2018</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WALKTHROUGH -->
+    <section class="card walkthrough-section">
+      <div class="card-header">
+        <div>
+          <h2>Walkthrough per massimizzare il rendimento</h2>
+          <span>Routine consigliata di studio</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <ol>
+          <li>
+            <strong>Prima di iniziare un blocco di studio (5 minuti)</strong>
+            <ul>
+              <li>Apri il <strong>timer pomodoro</strong> e imposta un obiettivo: ad esempio 2 pomodori per una lezione.</li>
+              <li>Guarda la <strong>Roadmap Elettricità e Magnetismo</strong> per sapere dove si colloca la lezione.</li>
+              <li>Riapri velocemente le <strong>note dell'ultima lezione</strong> per agganciare il contesto.</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Durante la lezione video (1–2 pomodori)</strong>
+            <ul>
+              <li>Fai partire il <strong>pomodoro da 25 minuti</strong> e guarda la lezione senza mettere pausa ogni 2 secondi.</li>
+              <li>Annota solo le idee chiave e i passaggi che non sono chiari (niente appunti lunghissimi).</li>
+              <li>Alla fine del pomodoro, fai <strong>pausa 5 minuti</strong>, poi continua se necessario.</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Dopo la lezione (1 pomodoro)</strong>
+            <ul>
+              <li>Apri le <strong>dispense / Lezione_X.pdf o .docx</strong> corrispondenti e completa gli appunti a mente fredda.</li>
+              <li>Collega formule e concetti ai <strong>formulario EM / OO</strong> (anche se ancora in anticipo).</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Sessione di esercizi con tutorato (1–2 pomodori)</strong>
+            <ul>
+              <li>Guarda il <strong>tutorato corrispondente</strong> (in blu nella playlist) dopo aver visto la lezione relativa.</li>
+              <li>Metti in pausa solo quando provi tu a <strong>risolvere l'esercizio</strong> prima della soluzione.</li>
+              <li>Segna gli esercizi simili da rivedere negli <strong>esami passati</strong>.</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Ripasso settimanale (2–3 pomodori a settimana)</strong>
+            <ul>
+              <li>Scegli 1–2 lezioni della settimana e rileggi solo le <strong>note sintetiche</strong> e le formule critiche.</li>
+              <li>Risolvi 2–3 esercizi dagli <strong>esami passati</strong> usando solo il formulario.</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Preparazione all'esame</strong>
+            <ul>
+              <li>Usa i <strong>formulario EM / OO</strong> come check-list: ogni formula deve essere “ovvia” per te.</li>
+              <li>Simula almeno 2–3 esami completi in tempo reale (usa il timer, niente consulti esterni).</li>
+              <li>Se un argomento ricompare spesso negli esami, torna alla sua <strong>lezione + tutorato</strong> specifici.</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Gestione energia e concentrazione</strong>
+            <ul>
+              <li>Cerca di non superare i <strong>6–8 pomodori intensi</strong> al giorno per Fisica II: meglio costanza che maratone.</li>
+              <li>Segna mentalmente quali orari ti rendono più produttivo e prova a fissare lì i blocchi più difficili.</li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // --- DATI LEZIONI & TUTORATI (ordine cronologico) ---
+    const videos = [
+      // Settembre 2021
+      {
+        id: 1,
+        title: "Lezione · 27 set 2021",
+        dateLabel: "27/09/2021",
+        url: "https://drive.google.com/file/d/1Hy9mkQAiECkQ4BpbIA_eZb_1DRM0xKYm/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+      {
+        id: 2,
+        title: "Lezione · 29 set 2021",
+        dateLabel: "29/09/2021",
+        url: "https://drive.google.com/file/d/1TcMUIEEJQ8S63WyIIV4ar_b5xcFL9rLY/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+
+      // Ottobre 2021
+      {
+        id: 3,
+        title: "Lezione · 4 ott 2021",
+        dateLabel: "04/10/2021",
+        url: "https://drive.google.com/file/d/17msj-aih1jcqrOrXCo9_VGtbig0Unm9w/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+      {
+        id: 4,
+        title: "Lezione · 7 ott 2021",
+        dateLabel: "07/10/2021",
+        url: "https://drive.google.com/file/d/1iTWKfmZ9GRK7vdb527Jsd7AsVF-mF53c/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+      {
+        id: 5,
+        title: "Lezione · 13 ott 2021",
+        dateLabel: "13/10/2021",
+        url: "https://drive.google.com/file/d/1Fraev3TvYALcUskeAdHiZmxJ54XmXaA9/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+      {
+        id: 6,
+        title: "Tutorato · 15 ott 2021",
+        dateLabel: "15/10/2021",
+        url: "https://drive.google.com/file/d/1rMOfROLOYyC0p3Av80b13rF59Spnn3I5/view?usp=classroom_web&authuser=3",
+        type: "tutorato"
+      },
+      {
+        id: 7,
+        title: "Lezione · 17 ott 2021",
+        dateLabel: "17/10/2021",
+        url: "https://drive.google.com/file/d/1NXlDa39zLFSLU4CDM_R6MVBxzquni6dV/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+      {
+        id: 8,
+        title: "Lezione · 18 ott 2021",
+        dateLabel: "18/10/2021",
+        url: "https://drive.google.com/file/d/1iamCZMqdoptfKpqVWOQhfQWkXLpKqOqN/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+      {
+        id: 9,
+        title: "Lezione · 20 ott 2021",
+        dateLabel: "20/10/2021",
+        url: "https://drive.google.com/file/d/1rumKALrXfczgozaIWfRu6kslIeFilcTO/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+      {
+        id: 10,
+        title: "Tutorato · 22 ott 2021",
+        dateLabel: "22/10/2021",
+        url: "https://drive.google.com/file/d/17lR-8SodMLAS17d2_5w1XteqFHaWca1-/view?usp=classroom_web&authuser=3",
+        type: "tutorato"
+      },
+      {
+        id: 11,
+        title: "Lezione · 25 ott 2021",
+        dateLabel: "25/10/2021",
+        url: "https://drive.google.com/file/d/1eRw19KEkaBfAcup_AWlFzjI6xf_ax6Lt/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+      {
+        id: 12,
+        title: "Lezione · 28 ott 2021",
+        dateLabel: "28/10/2021",
+        url: "https://drive.google.com/file/d/1t-sdyX9-2ZDGrjHx7j0Za-VpaRsbfeg5/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+      {
+        id: 13,
+        title: "Tutorato · 29 ott 2021",
+        dateLabel: "29/10/2021",
+        url: "https://drive.google.com/file/d/1IePOJI1XudB-R6dzng6SljWnpSq-BqUQ/view?usp=classroom_web&authuser=3",
+        type: "tutorato"
+      },
+
+      // Novembre 2021
+      {
+        id: 14,
+        title: "Lezione · 5 nov 2021",
+        dateLabel: "05/11/2021",
+        url: "https://drive.google.com/file/d/1JtD_pccySDUbP3qo5J2zS2zPXxR2SADx/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+      {
+        id: 15,
+        title: "Tutorato · 5 nov 2021",
+        dateLabel: "05/11/2021",
+        url: "https://drive.google.com/file/d/11Vf8HSh2tTBwnS_5DrPDmE-T9QPpHm0P/view?usp=classroom_web&authuser=3",
+        type: "tutorato"
+      },
+      {
+        id: 16,
+        title: "Lezione · 8 nov 2021",
+        dateLabel: "08/11/2021",
+        url: "https://drive.google.com/file/d/1-WXkcghnXfVdSHXHA3Pp2OvgHXlsIQ0w/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+      {
+        id: 17,
+        title: "Lezione · 12 nov 2021",
+        dateLabel: "12/11/2021",
+        url: "https://drive.google.com/file/d/1dbM7Zp4eSXokIZINy_Fvv-AW1VMT8ovn/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+      {
+        id: 18,
+        title: "Tutorato · 12 nov 2021",
+        dateLabel: "12/11/2021",
+        url: "https://drive.google.com/file/d/1pwerN5XTV8YJzUGprIMWfkDitWTCRUZB/view?usp=classroom_web&authuser=3",
+        type: "tutorato"
+      },
+      {
+        id: 19,
+        title: "Lezione · 16 nov 2021",
+        dateLabel: "16/11/2021",
+        url: "https://drive.google.com/file/d/1yZVZi_8uVkIiXXo1KnoL464yD7biRuCs/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+      {
+        id: 20,
+        title: "Lezione · 19 nov 2021",
+        dateLabel: "19/11/2021",
+        url: "https://drive.google.com/file/d/13wCvsxgQpOk576YEQWS7j5lsPW-T-1im/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+      {
+        id: 21,
+        title: "Tutorato · 19 nov 2021",
+        dateLabel: "19/11/2021",
+        url: "https://drive.google.com/file/d/18y7o38tdrwnwUsjXoKwZi7Wx6WUZEh5c/view?usp=classroom_web&authuser=3",
+        type: "tutorato"
+      },
+      {
+        id: 22,
+        title: "Lezione · 22 nov 2021",
+        dateLabel: "22/11/2021",
+        url: "https://drive.google.com/file/d/1sP2MjbvlmXNhawtVv5kCN8VjJnTBd3CJ/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+      {
+        id: 23,
+        title: "Lezione · 24 nov 2021",
+        dateLabel: "24/11/2021",
+        url: "https://drive.google.com/file/d/1C4er-KoV6lwhDcKvZxqdxx4y_vsddAi9/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+      {
+        id: 24,
+        title: "Lezione · 26 nov 2021",
+        dateLabel: "26/11/2021",
+        url: "https://drive.google.com/file/d/1eRw19KEkaBfAcup_AWlFzjI6xf_ax6Lt/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+      {
+        id: 25,
+        title: "Tutorato · 26 nov 2021",
+        dateLabel: "26/11/2021",
+        url: "https://drive.google.com/file/d/18pSusWY3-LHjka0o_u4K8H2YZChnUE9S/view?usp=classroom_web&authuser=3",
+        type: "tutorato"
+      },
+
+      // Dicembre 2021
+      {
+        id: 26,
+        title: "Lezione · 1 dic 2021 (mattina)",
+        dateLabel: "01/12/2021",
+        url: "https://drive.google.com/file/d/1MahKj9z-7gLY1g934Klz5S0CPMhaztpi/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+      {
+        id: 27,
+        title: "Lezione · 1 dic 2021 (sera)",
+        dateLabel: "01/12/2021",
+        url: "https://drive.google.com/file/d/17URmeED7oLy2o51mmTr596Ny_pE54Zch/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+      {
+        id: 28,
+        title: "Tutorato · 3 dic 2021",
+        dateLabel: "03/12/2021",
+        url: "https://drive.google.com/file/d/12a98_Lr3ksvaNCDK6DDfTaExwvGcNUIN/view?usp=classroom_web&authuser=3",
+        type: "tutorato"
+      },
+      {
+        id: 29,
+        title: "Lezione · 10 dic 2021",
+        dateLabel: "10/12/2021",
+        url: "https://drive.google.com/file/d/1x5GTby1QkO_BtKDQINhF5zlCvePqwMm4/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+      {
+        id: 30,
+        title: "Tutorato · 10 dic 2021",
+        dateLabel: "10/12/2021",
+        url: "https://drive.google.com/file/d/1ZxsaKyvVkSlFe4UIuyRgfLzSnzNOK5jc/view?usp=classroom_web&authuser=3",
+        type: "tutorato"
+      },
+      {
+        id: 31,
+        title: "Lezione · 15 dic 2021 (parte 1)",
+        dateLabel: "15/12/2021",
+        url: "https://drive.google.com/file/d/1v1PwL4_IzRXV4HWoho6rrZNL31OouSh8/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+      {
+        id: 32,
+        title: "Lezione · 15 dic 2021 (parte 2)",
+        dateLabel: "15/12/2021",
+        url: "https://drive.google.com/file/d/1hN7kwWQ4MbEyUbYznRNe3XFABvZnFyrG/view?usp=classroom_web&authuser=3",
+        type: "lesson"
+      },
+      {
+        id: 33,
+        title: "Lezione di recupero · 17 dic 2021",
+        dateLabel: "17/12/2021",
+        url: "https://drive.google.com/file/d/1rMDuUfnyoIlvcqjNFCMBwRpFWQ035pV4/view?usp=classroom_web&authuser=3",
+        type: "extra"
+      }
+    ];
+
+    let currentVideoIndex = 0;
+    let seenVideoIds = new Set();
+
+    function transformDriveUrl(url) {
+      return url.replace("/view", "/preview");
+    }
+
+    function loadSeenVideos() {
+      try {
+        const raw = localStorage.getItem("fisica2_seenVideos");
+        if (!raw) {
+          seenVideoIds = new Set();
+          return;
+        }
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) {
+          seenVideoIds = new Set(arr);
+        } else {
+          seenVideoIds = new Set();
+        }
+      } catch (e) {
+        seenVideoIds = new Set();
+      }
+    }
+
+    function saveSeenVideos() {
+      const arr = Array.from(seenVideoIds);
+      localStorage.setItem("fisica2_seenVideos", JSON.stringify(arr));
+    }
+
+    function renderPlaylist() {
+      const playlistEl = document.getElementById("playlist");
+      playlistEl.innerHTML = "";
+
+      videos.forEach((video, index) => {
+        const btn = document.createElement("button");
+        let extraClass = "";
+        if (video.type === "tutorato") extraClass += " tutorato";
+        if (seenVideoIds.has(video.id)) extraClass += " seen";
+
+        btn.className = "playlist-item" + extraClass;
+        btn.dataset.index = index.toString();
+
+        let badgeClass = "badge-lesson";
+        let badgeLabel = "Lezione";
+        if (video.type === "tutorato") {
+          badgeClass = "badge-tutorato";
+          badgeLabel = "Tutorato";
+        } else if (video.type === "extra") {
+          badgeClass = "badge-extra";
+          badgeLabel = "Recupero";
+        }
+
+        const seenLabel = seenVideoIds.has(video.id)
+          ? '<span class="seen-flag">✓ visto</span>'
+          : "";
+
+        btn.innerHTML = `
+          <div class="playlist-thumbnail">
+            <div class="play-icon">▶</div>
+          </div>
+          <div class="playlist-meta">
+            <div class="playlist-title">${video.title}</div>
+            <div class="playlist-subtitle">
+              <span>${video.dateLabel}</span>
+              <span class="badge ${badgeClass}">${badgeLabel}</span>
+              ${seenLabel}
+            </div>
+          </div>
+        `;
+
+        btn.addEventListener("click", () => {
+          setActiveVideo(index);
+        });
+
+        playlistEl.appendChild(btn);
+      });
+    }
+
+    function updateVideoPositionLabel() {
+      const positionEl = document.getElementById("videoPosition");
+      if (positionEl) {
+        positionEl.textContent = `${currentVideoIndex + 1} / ${videos.length}`;
+      }
+    }
+
+    function setActiveVideo(index) {
+      if (index < 0 || index >= videos.length) return;
+      currentVideoIndex = index;
+
+      const video = videos[index];
+      const iframe = document.getElementById("videoPlayer");
+      iframe.src = transformDriveUrl(video.url);
+
+      document.querySelectorAll(".playlist-item").forEach((el) => {
+        el.classList.remove("active");
+      });
+
+      const current = document.querySelector(`.playlist-item[data-index="${index}"]`);
+      if (current) {
+        current.classList.add("active");
+        if (current.scrollIntoView) {
+          current.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        }
+      }
+
+      updateVideoPositionLabel();
+    }
+
+    function showPrevVideo() {
+      setActiveVideo(currentVideoIndex - 1);
+    }
+
+    function showNextVideo() {
+      setActiveVideo(currentVideoIndex + 1);
+    }
+
+    function markCurrentAsSeen() {
+      const video = videos[currentVideoIndex];
+      if (!video) return;
+      if (!seenVideoIds.has(video.id)) {
+        seenVideoIds.add(video.id);
+        saveSeenVideos();
+        renderPlaylist();
+        setActiveVideo(currentVideoIndex); // ri-applica active dopo il re-render
+      }
+    }
+
+    // --- POMODORO TIMER ---
+    const POMODORO_DURATION = 25 * 60; // 25 minuti in secondi
+    const MAX_POMODORI = 8;
+
+    let remainingSeconds = POMODORO_DURATION;
+    let isRunning = false;
+    let completedPomodori = 0;
+    let timerInterval = null;
+
+    function getStudyDayId() {
+      const now = new Date();
+      // Reset alle 06:00 ora locale (GMT+1 tipicamente)
+      const current = new Date(now.getTime());
+      if (current.getHours() < 6) {
+        current.setDate(current.getDate() - 1);
+      }
+      const y = current.getFullYear();
+      const m = String(current.getMonth() + 1).padStart(2, "0");
+      const d = String(current.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function savePomodoroState() {
+      localStorage.setItem("pomodoroDayId", getStudyDayId());
+      localStorage.setItem("pomodoroCompleted", String(completedPomodori));
+      localStorage.setItem("pomodoroRemaining", String(remainingSeconds));
+      localStorage.setItem("pomodoroIsRunning", isRunning ? "true" : "false");
+      if (isRunning) {
+        localStorage.setItem("pomodoroLastUpdate", String(Date.now()));
+      }
+    }
+
+    function loadPomodoroState() {
+      const currentDayId = getStudyDayId();
+      const savedDayId = localStorage.getItem("pomodoroDayId");
+
+      if (!savedDayId || savedDayId !== currentDayId) {
+        completedPomodori = 0;
+        remainingSeconds = POMODORO_DURATION;
+        isRunning = false;
+        localStorage.setItem("pomodoroDayId", currentDayId);
+        localStorage.setItem("pomodoroCompleted", "0");
+        localStorage.setItem("pomodoroRemaining", String(POMODORO_DURATION));
+        localStorage.setItem("pomodoroIsRunning", "false");
+        localStorage.removeItem("pomodoroLastUpdate");
+        updatePomodoroDisplay();
+        return;
+      }
+
+      completedPomodori = parseInt(localStorage.getItem("pomodoroCompleted") || "0", 10);
+      remainingSeconds = parseInt(localStorage.getItem("pomodoroRemaining") || String(POMODORO_DURATION), 10);
+      isRunning = localStorage.getItem("pomodoroIsRunning") === "true";
+      const lastUpdate = localStorage.getItem("pomodoroLastUpdate");
+
+      if (isRunning && lastUpdate) {
+        const now = Date.now();
+        const diffSec = Math.floor((now - parseInt(lastUpdate, 10)) / 1000);
+        remainingSeconds -= diffSec;
+        if (remainingSeconds <= 0) {
+          remainingSeconds = POMODORO_DURATION;
+          isRunning = false;
+          if (completedPomodori < MAX_POMODORI) {
+            completedPomodori++;
+          }
+        }
+      }
+
+      updatePomodoroDisplay();
+
+      if (isRunning) {
+        startTimerInterval();
+      }
+    }
+
+    function updatePomodoroDisplay() {
+      const timerEl = document.getElementById("pomodoro-timer");
+      const countEl = document.getElementById("pomodoro-count");
+      const startBtn = document.getElementById("startPauseBtn");
+
+      const minutes = Math.floor(remainingSeconds / 60);
+      const seconds = remainingSeconds % 60;
+      timerEl.textContent = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+
+      countEl.textContent = `${completedPomodori} / ${MAX_POMODORI} pomodori`;
+      startBtn.textContent = isRunning ? "⏸ Pausa" : "▶ Avvia";
+
+      renderPomodoroDots();
+    }
+
+    function renderPomodoroDots() {
+      const container = document.getElementById("pomodoro-dots");
+      container.innerHTML = "";
+      for (let i = 0; i < MAX_POMODORI; i++) {
+        const dot = document.createElement("span");
+        dot.className = "pomodoro-dot" + (i < completedPomodori ? " done" : "");
+        container.appendChild(dot);
+      }
+    }
+
+    function startTimerInterval() {
+      if (timerInterval) clearInterval(timerInterval);
+
+      timerInterval = setInterval(() => {
+        remainingSeconds--;
+        if (remainingSeconds <= 0) {
+          if (completedPomodori < MAX_POMODORI) {
+            completedPomodori++;
+          }
+          remainingSeconds = POMODORO_DURATION;
+          isRunning = false;
+          clearInterval(timerInterval);
+          timerInterval = null;
+          alert("Pomodoro completato! Fai una pausa 🙂");
+        }
+        updatePomodoroDisplay();
+        savePomodoroState();
+      }, 1000);
+    }
+
+    function toggleStartPause() {
+      isRunning = !isRunning;
+      if (isRunning) {
+        startTimerInterval();
+      } else {
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+      }
+      updatePomodoroDisplay();
+      savePomodoroState();
+    }
+
+    function resetCurrentPomodoro() {
+      remainingSeconds = POMODORO_DURATION;
+      isRunning = false;
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      updatePomodoroDisplay();
+      savePomodoroState();
+    }
+
+    function resetStudyDay() {
+      completedPomodori = 0;
+      remainingSeconds = POMODORO_DURATION;
+      isRunning = false;
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      localStorage.setItem("pomodoroDayId", getStudyDayId());
+      localStorage.setItem("pomodoroCompleted", "0");
+      localStorage.setItem("pomodoroRemaining", String(POMODORO_DURATION));
+      localStorage.setItem("pomodoroIsRunning", "false");
+      localStorage.removeItem("pomodoroLastUpdate");
+      updatePomodoroDisplay();
+    }
+
+    function initPomodoro() {
+      loadPomodoroState();
+      document.getElementById("startPauseBtn").addEventListener("click", toggleStartPause);
+      document.getElementById("resetPomodoroBtn").addEventListener("click", resetCurrentPomodoro);
+      document.getElementById("resetDayBtn").addEventListener("click", resetStudyDay);
+    }
+
+    // --- ANTEPRIMA MATERIALE ---
+    function initMaterialPreview() {
+      const preview = document.getElementById("materialPreview");
+      const info = document.getElementById("materialInfo");
+      if (!preview || !info) return;
+
+      const cards = document.querySelectorAll(".resource-card");
+      cards.forEach((card) => {
+        card.addEventListener("click", (event) => {
+          // Se clicchi sulla freccia ↗, lascio il link normale
+          const openLink = event.target.closest(".resource-open");
+          if (openLink) return;
+
+          const url = card.dataset.url;
+          if (!url) return;
+          const title = card.dataset.title || "";
+          const date = card.dataset.date || "";
+          const type = card.dataset.type || "";
+
+          preview.src = transformDriveUrl(url);
+          const pieces = [];
+          if (title) pieces.push(title);
+          if (date) pieces.push(date);
+          if (type) pieces.push(type);
+          info.textContent = pieces.join(" · ");
+        });
+      });
+
+      // Carico in automatico il primo materiale
+      const firstCard = document.querySelector(".resource-card");
+      if (firstCard) {
+        firstCard.click();
+      }
+    }
+
+    // --- INIT ---
+    document.addEventListener("DOMContentLoaded", () => {
+      loadSeenVideos();
+      renderPlaylist();
+      if (videos.length > 0) {
+        setActiveVideo(0);
+      }
+
+      const prevBtn = document.getElementById("prevVideoBtn");
+      const nextBtn = document.getElementById("nextVideoBtn");
+      const markSeenBtn = document.getElementById("markSeenBtn");
+      if (prevBtn) prevBtn.addEventListener("click", showPrevVideo);
+      if (nextBtn) nextBtn.addEventListener("click", showNextVideo);
+      if (markSeenBtn) markSeenBtn.addEventListener("click", markCurrentAsSeen);
+
+      initPomodoro();
+      initMaterialPreview();
+    });
+  </script>
+</body>
+</html>
