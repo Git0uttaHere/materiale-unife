@@ -1,3 +1,4 @@
+window.COURSE_DATA =  
 {
   "id": "fondamenti",
   "title": "Fondamenti di Automatica (6 CFU) + Matlab (3 CFU) · Marcello Bonfè",
@@ -163,3 +164,4 @@
     ]
   }
 }
+; 

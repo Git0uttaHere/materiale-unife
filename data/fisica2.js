@@ -1,3 +1,4 @@
+window.COURSE_DATA =  
 {
   "id": "fisica2",
   "title": "Fisica II · Vincenzi Donato",
@@ -142,3 +143,4 @@
     ]
   }
 }
+; 

@@ -1,3 +1,4 @@
+window.COURSE_DATA =  
 {
   "id": "probabilita",
   "title": "Probabilità e scienza dei dati · Giacomo Dimarco",
@@ -137,3 +138,4 @@
     ]
   }
 }
+; 

@@ -419,6 +419,20 @@
 
   // ── Main ──
 
+  function loadCourseData(course) {
+    return new Promise((resolve, reject) => {
+      delete window.COURSE_DATA;
+      const script = document.createElement("script");
+      script.src = `data/${course}.js`;
+      script.onload = () => {
+        if (window.COURSE_DATA) resolve(window.COURSE_DATA);
+        else reject(new Error("Data not found"));
+      };
+      script.onerror = () => reject(new Error("Script load failed"));
+      document.head.appendChild(script);
+    });
+  }
+
   async function main() {
     const params = new URLSearchParams(window.location.search);
     const course = params.get("course");
@@ -429,9 +443,7 @@
 
     let data;
     try {
-      const resp = await fetch(`data/${course}.json`);
-      if (!resp.ok) throw new Error(resp.statusText);
-      data = await resp.json();
+      data = await loadCourseData(course);
     } catch (err) {
       document.getElementById("app-main").innerHTML =
         `<div class="card" style="padding:24px;text-align:center;">Corso non trovato: <strong>${esc(course)}</strong><br><a href="index.html">Torna alla home</a></div>`;
