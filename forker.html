@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convertitore Classroom Universale</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 900px; margin: 40px auto; padding: 20px; line-height: 1.6; color: #333; background: #f9f9f9; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        .upload-area { border: 2px dashed #3498db; background: #f0f8ff; padding: 40px; text-align: center; border-radius: 8px; margin-bottom: 20px; cursor: pointer; transition: all 0.2s; }
+        .upload-area:hover { background: #e6f3ff; border-color: #2980b9; transform: translateY(-2px); }
+        .upload-area p { margin: 0; color: #555; font-size: 1.1em; }
+        .btn-download { background: #27ae60; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; display: none; margin-top: 20px; width: 100%; transition: background 0.2s; }
+        .btn-download:hover { background: #219150; }
+        #log { margin-top: 20px; padding: 10px; background: #fff3cd; border: 1px solid #ffeeba; color: #856404; border-radius: 4px; display: none; font-size: 0.9em; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 20px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; font-family: "Consolas", "Monaco", monospace; font-size: 13px; max-height: 500px; display: none; }
+        .tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-right: 5px; }
+        .tag-vid { background: #e74c3c; color: white; }
+        .tag-mat { background: #3498db; color: white; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Convertitore Classroom > JS</h1>
+    
+    <input type="file" id="fileInput" accept=".txt,.html" style="display: none;">
+    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+        <p>📂 Clicca qui per caricare il file <strong>.txt</strong> o <strong>.html</strong></p>
+        <div style="margin-top: 10px; font-size: 0.9em; color: #888;">(Il sorgente della pagina Classroom)</div>
+    </div>
+
+    <div id="log"></div>
+    <pre id="output"></pre>
+    <button id="downloadBtn" class="btn-download" onclick="downloadJs()">⬇️ Scarica .js</button>
+</div>
+
+<script>
+    let generatedJS = "";
+    let fileNameString = "course_data.js";
+
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            processHTML(e.target.result);
+        };
+        reader.readAsText(file);
+    });
+
+    function sanitizeId(str) {
+        return str.toLowerCase()
+            .replace(/[^a-z0-9]+/g, '_') // Sostituisci caratteri non alfanumerici con _
+            .replace(/^_+|_+$/g, '');    // Rimuovi _ inizio/fine
+    }
+
+    function processHTML(htmlString) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlString, 'text/html');
+        const log = document.getElementById('log');
+        
+        // --- 1. Estrazione Info Corso ---
+        // Cerca il titolo nell'h1 tipico di Classroom
+        const titleEl = doc.querySelector('h1 a');
+        const rawTitle = titleEl ? titleEl.textContent.trim() : "Corso Importato";
+        const courseId = sanitizeId(rawTitle);
+        fileNameString = courseId + ".js";
+
+        log.style.display = 'block';
+        log.innerHTML = `Analisi corso: <strong>${rawTitle}</strong> (ID: ${courseId})...`;
+
+        // --- 2. Preparazione Struttura Dati ---
+        const courseData = {
+            id: courseId,
+            title: rawTitle,
+            subtitle: "Generato automaticamente",
+            storagePrefix: courseId, // Cross-compatible prefix
+            videoSections: [
+                {
+                    id: "lezioni",
+                    title: "Lezioni",
+                    subtitle: "Lezioni registrate",
+                    storageKey: `${courseId}_seenVideos`,
+                    videos: []
+                },
+                {
+                    id: "lab_extra",
+                    title: "Laboratori / Extra",
+                    subtitle: "Materiale video aggiuntivo",
+                    storageKey: `${courseId}_lab_seenVideos`,
+                    videos: []
+                }
+            ],
+            materialSections: [
+                {
+                    id: "materiale",
+                    title: "Materiale Didattico",
+                    subtitle: "File, slide e dispense",
+                    groups: [
+                        {
+                            title: "Documenti",
+                            subtitle: "Tutto il materiale",
+                            resources: []
+                        }
+                    ]
+                }
+            ],
+            walkthrough: {
+                title: "Walkthrough",
+                subtitle: "Routine di studio",
+                steps: []
+            }
+        };
+
+        // --- 3. Analisi Stream (Post) ---
+        // Seleziona tutti i div che rappresentano un post (hanno data-stream-item-id)
+        let streamItems = Array.from(doc.querySelectorAll('div[data-stream-item-id]'));
+        
+        // IMPORTANTE: Classroom mostra i post dal più nuovo al più vecchio.
+        // Invertiamo l'array per avere l'ordine cronologico (Lezione 1, 2, 3...)
+        streamItems.reverse();
+
+        let videoCounter = 1;
+        let foundVideos = 0;
+        let foundMaterials = 0;
+
+        streamItems.forEach(item => {
+            // -- A. Estrazione Data (Fork the Date) --
+            // Cerca span con classe comune per le date o attributi aria-label
+            let dateText = "Data sconosciuta";
+            
+            // Metodo 1: Cerca la classe specifica (spesso cambia, ma proviamo le comuni)
+            const dateSpan = item.querySelector('.jzdBjc, .DTPd2e, span[aria-label^="Creato:"], span[aria-label^="Created:"]');
+            
+            if (dateSpan) {
+                // Pulisce il testo (es. "Data di creazione: 5 giu 2024" -> "5 giu 2024")
+                dateText = dateSpan.textContent
+                    .replace(/Data di creazione:|Created:|Modificato:|Edited:/gi, "")
+                    .trim();
+            } else {
+                // Metodo 2: Cerca nel testo grezzo del post se c'è una data pattern (fallback)
+                // (Omissis per semplicità, il metodo 1 copre il 99% dei casi se l'html è fresco)
+            }
+
+            // -- B. Estrazione Contenuto del Post (per Etichette) --
+            // Cerchiamo il testo del post per vedere se menziona "Lezione X"
+            const postTextDiv = item.querySelector('div[data-message-text], .asQXV'); // Selettori comuni testo
+            const postText = postTextDiv ? postTextDiv.textContent : "";
+            
+            // Tentativo di estrarre "Lezione X" dal testo
+            let extractedLabel = dateText; 
+            const lezMatch = postText.match(/(Lezione\s*\d+)/i);
+            if (lezMatch) {
+                extractedLabel = lezMatch[1]; // Usa "Lezione X" come etichetta
+            }
+
+            // -- C. Estrazione Link/Allegati --
+            // Cerca link a Drive o YouTube
+            const links = item.querySelectorAll('a[href*="drive.google.com"], a[href*="youtube.com"]');
+
+            links.forEach(link => {
+                const url = link.href;
+                let title = link.getAttribute('aria-label') || link.title || link.textContent || "Risorsa senza nome";
+                
+                // Pulizia titolo (Google aggiunge prefissi tipo "Allegato: Video: ...")
+                title = title.replace(/^Allegato:\s*(Video|PDF|Audio|Immagine):\s*/i, "").trim();
+
+                // -- D. Classificazione (Video o Materiale) --
+                const isVideo = url.includes("youtube") || 
+                                title.endsWith(".mp4") || title.endsWith(".mov") || title.endsWith(".ZV") || title.endsWith(".mkv") ||
+                                (link.getAttribute('aria-label') && link.getAttribute('aria-label').includes("Video"));
+                
+                const isLab = title.toLowerCase().includes("laboratorio") || title.toLowerCase().includes("matlab") || title.toLowerCase().includes("esercitazione");
+
+                if (isVideo) {
+                    const vidObj = {
+                        id: videoCounter++,
+                        title: title,
+                        dateLabel: extractedLabel, // Usa "Lezione X" o la Data
+                        url: url,
+                        type: isLab ? "lab" : "lesson",
+                        date: dateText
+                    };
+
+                    if (isLab) {
+                        courseData.videoSections[1].videos.push(vidObj);
+                    } else {
+                        courseData.videoSections[0].videos.push(vidObj);
+                    }
+                    foundVideos++;
+                } else {
+                    // Materiale
+                    const ext = title.split('.').pop().toUpperCase().substring(0, 4); // Es. PDF, ZIP
+                    const matObj = {
+                        url: url,
+                        title: title,
+                        date: dateText,
+                        type: ext, 
+                        icon: ext === "PDF" ? "PDF" : "DOC",
+                        iconClass: ext === "PDF" ? "ext-pdf" : "ext-generic"
+                    };
+                    courseData.materialSections[0].groups[0].resources.push(matObj);
+                    foundMaterials++;
+                }
+            });
+        });
+
+        // --- 4. Output ---
+        generatedJS = `window.COURSE_DATA = \n${JSON.stringify(courseData, null, 2)};`;
+        
+        document.getElementById('output').textContent = generatedJS;
+        document.getElementById('output').style.display = 'block';
+        document.getElementById('downloadBtn').style.display = 'block';
+        document.getElementById('downloadBtn').innerText = `⬇️ Scarica ${fileNameString}`;
+        
+        log.innerHTML += `<br>✅ Completato! Trovati <span class="tag tag-vid">${foundVideos} video</span> e <span class="tag tag-mat">${foundMaterials} materiali</span>.`;
+    }
+
+    function downloadJs() {
+        const blob = new Blob([generatedJS], { type: 'application/javascript' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileNameString;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+</script>
+
+</body>
+</html>

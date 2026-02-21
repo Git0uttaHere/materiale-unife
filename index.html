@@ -249,17 +249,14 @@
   <section class="grid" id="grid"></section>
 
   <div class="footer">
-    Per aggiungere un nuovo corso, crea un file JSON in <span class="k">data/</span> e aggiungilo all'array <span class="k">COURSES</span> in questa pagina.
+    Per aggiungere un nuovo corso, crea un file <span class="k">data/nomecorso.js</span> e aggiungi una riga in <span class="k">data/courses.js</span>.
   </div>
 </main>
 
+<script src="data/courses.js"></script>
 <script>
 (() => {
-  const COURSES = [
-    { id: "fondamenti", name: "Fondamenti di Automatica + Matlab", desc: "Marcello Bonfè · 6 + 3 CFU", category: "Informatica" },
-    { id: "probabilita", name: "Probabilità e scienza dei dati", desc: "Giacomo Dimarco", category: "Matematica" },
-    { id: "fisica2", name: "Fisica II", desc: "Vincenzi Donato", category: "Fisica" }
-  ];
+  const courses = window.COURSES || [];
 
   const $ = (id) => document.getElementById(id);
   const grid = $("grid");
@@ -272,7 +269,7 @@
 
   function render() {
     const query = q.value.trim().toLowerCase();
-    const filtered = COURSES.filter(c => {
+    const filtered = courses.filter(c => {
       if (!query) return true;
       return c.name.toLowerCase().includes(query)
         || c.desc.toLowerCase().includes(query)
@@ -295,7 +292,7 @@
       grid.appendChild(a);
     }
 
-    countText.textContent = `Visualizzati ${filtered.length} di ${COURSES.length} corsi.`;
+    countText.textContent = `Visualizzati ${filtered.length} di ${courses.length} corsi.`;
     if (filtered.length === 0) {
       grid.innerHTML = `<div class="card" style="padding:14px; border-radius:16px; border:1px solid var(--line);">Nessun risultato. Prova a cambiare ricerca.</div>`;
     }
