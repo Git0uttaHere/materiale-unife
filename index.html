@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Materiale didattico • UniFE</title>
+  <title>Materiale didattico · UniFE</title>
   <style>
     :root{
       --bg: #ffffff;
       --paper: #ffffff;
-      --ink: #0f172a;          /* slate-900 */
-      --muted: #475569;        /* slate-600 */
-      --muted2: #64748b;       /* slate-500 */
-      --line: #e2e8f0;         /* slate-200 */
-      --line2:#cbd5e1;         /* slate-300 */
-      --brand:#0b3a78;         /* blu “istituzionale” */
+      --ink: #0f172a;
+      --muted: #475569;
+      --muted2: #64748b;
+      --line: #e2e8f0;
+      --line2:#cbd5e1;
+      --brand:#0b3a78;
       --brandSoft:#e8f0ff;
       --shadow: 0 10px 22px rgba(2, 8, 23, .06);
       --radius: 16px;
@@ -98,13 +98,10 @@
 
     .controls{
       display:grid;
-      grid-template-columns: 1.2fr .8fr;
+      grid-template-columns: 1fr;
       gap: 10px;
       padding: 14px;
       margin-top: 14px;
-    }
-    @media (max-width: 820px){
-      .controls{ grid-template-columns: 1fr; }
     }
 
     .control{
@@ -117,18 +114,13 @@
       background: #fff;
     }
 
-    .control input, .control select{
+    .control input{
       width: 100%;
       border: none;
       outline: none;
       font-size: 14.5px;
       color: var(--ink);
       background: transparent;
-    }
-
-    .control select{
-      appearance: none;
-      cursor: pointer;
     }
 
     .metaRow{
@@ -206,17 +198,6 @@
       line-height:1.45;
     }
 
-    .path{
-      margin-top: 2px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
-      font-size: 12px;
-      color: var(--muted2);
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-      max-width: 60ch;
-    }
-
     .footer{
       margin-top: 18px;
       color: var(--muted2);
@@ -244,169 +225,83 @@
     <div class="title">
       <h1>Materiale didattico</h1>
       <p class="subtitle">
-        Menu locale per i tuoi file nella cartella corrente. Usa la ricerca per trovare rapidamente una materia o una pagina.
+        Scegli una materia per aprire la dashboard di studio con video, materiale e timer pomodoro.
       </p>
     </div>
-    <div class="badge" id="badgeInfo">📁 cartella corrente</div>
+    <div class="badge">📁 dashboard</div>
   </div>
 </header>
 
 <main class="wrap">
   <section class="card">
     <div class="controls">
-      <div class="control" title="Cerca tra titoli e nomi file">
+      <div class="control" title="Cerca tra le materie">
         🔎
         <input id="q" type="text" placeholder="Cerca (es. fisica, probabilità, fondamenti…)" autocomplete="off" />
-      </div>
-
-      <div class="control" title="Filtra per categoria">
-        🧩
-        <select id="cat">
-          <option value="all">Tutte le categorie</option>
-          <option value="Fisica">Fisica</option>
-          <option value="Probabilità">Probabilità</option>
-          <option value="Informatica">Informatica</option>
-          <option value="Altro">Altro</option>
-        </select>
       </div>
     </div>
     <div class="metaRow">
       <div id="countText">—</div>
-      <div>Apri con click • Suggerimento: <span class="k">Ctrl</span> + click per nuova scheda</div>
+      <div>Apri con click</div>
     </div>
   </section>
 
   <section class="grid" id="grid"></section>
 
   <div class="footer">
-    Se aggiungi nuovi file HTML nella cartella, inseriscili nell’array <span class="k">FILES</span> nello script in fondo a questa pagina.
+    Per aggiungere un nuovo corso, crea un file JSON in <span class="k">data/</span> e aggiungilo all'array <span class="k">COURSES</span> in questa pagina.
   </div>
 </main>
 
 <script>
 (() => {
-  // ✅ TUTTI i file HTML presenti nello screenshot (escluso index.html)
-  const FILES = [
-    "fisica2.html",
-    "fondamenti_dashboard.html",
-    "probabilita.html"
+  const COURSES = [
+    { id: "fondamenti", name: "Fondamenti di Automatica + Matlab", desc: "Marcello Bonfè · 6 + 3 CFU", category: "Informatica" },
+    { id: "probabilita", name: "Probabilità e scienza dei dati", desc: "Giacomo Dimarco", category: "Matematica" },
+    { id: "fisica2", name: "Fisica II", desc: "Vincenzi Donato", category: "Fisica" }
   ];
 
   const $ = (id) => document.getElementById(id);
   const grid = $("grid");
   const q = $("q");
-  const cat = $("cat");
   const countText = $("countText");
 
-  function extOf(name){
-    const i = name.lastIndexOf(".");
-    return i >= 0 ? name.slice(i + 1).toLowerCase() : "";
+  function escapeHtml(str) {
+    return String(str).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
   }
 
-  function prettyTitle(filename){
-    const base = filename.replace(/\.[^.]+$/, "");
-    let s = base.replace(/[_\-]+/g, " ").trim();
-    // aggiusta casi comuni
-    const key = s.toLowerCase().replace(/\s+/g, "");
-    const map = {
-      "fisica2": "Fisica II",
-      "probabilita": "Probabilità",
-      "fondamentidashboard": "Fondamenti • Dashboard"
-    };
-    if (map[key]) return map[key];
-    // capitalizza
-    return s ? s[0].toUpperCase() + s.slice(1) : filename;
-  }
-
-  function categoryFor(filename){
-    const f = filename.toLowerCase();
-    if (f.includes("fisica")) return "Fisica";
-    if (f.includes("probabil")) return "Probabilità";
-    if (f.includes("fondamenti")) return "Informatica";
-    return "Altro";
-  }
-
-  function descriptionFor(filename){
-    const c = categoryFor(filename);
-    if (c === "Fisica") return "Appunti e materiale di Fisica II.";
-    if (c === "Probabilità") return "Appunti e materiale di Probabilità.";
-    if (c === "Informatica") return "Dashboard e contenuti per Fondamenti.";
-    return "Materiale didattico.";
-  }
-
-  function iconFor(filename){
-    const ext = extOf(filename);
-    if (ext === "html" || ext === "htm") return "HTML";
-    return ext.toUpperCase() || "FILE";
-  }
-
-  function matchesFilters(item){
+  function render() {
     const query = q.value.trim().toLowerCase();
-    const c = cat.value;
-
-    const title = item.title.toLowerCase();
-    const path = item.path.toLowerCase();
-    const inQuery = !query || title.includes(query) || path.includes(query) || item.category.toLowerCase().includes(query);
-    const inCat = (c === "all") || (item.category === c);
-
-    return inQuery && inCat;
-  }
-
-  function render(){
-    const items = FILES
-      .filter(f => f.toLowerCase() !== "index.html")
-      .map(path => ({
-        path,
-        title: prettyTitle(path),
-        category: categoryFor(path),
-        desc: descriptionFor(path),
-        icon: iconFor(path)
-      }))
-      .filter(matchesFilters)
-      .sort((a,b) => a.title.localeCompare(b.title, "it"));
+    const filtered = COURSES.filter(c => {
+      if (!query) return true;
+      return c.name.toLowerCase().includes(query)
+        || c.desc.toLowerCase().includes(query)
+        || c.category.toLowerCase().includes(query)
+        || c.id.toLowerCase().includes(query);
+    });
 
     grid.innerHTML = "";
 
-    for (const it of items){
+    for (const c of filtered) {
       const a = document.createElement("a");
       a.className = "item";
-      a.href = encodeURI(it.path);
-      a.target = "_self";
-      a.rel = "noopener";
-
+      a.href = `dashboard.html?course=${encodeURIComponent(c.id)}`;
       a.innerHTML = `
-        <div class="icon">${it.icon}</div>
+        <div class="icon">📚</div>
         <div class="info">
-          <div class="name">${escapeHtml(it.title)}</div>
-          <div class="desc">${escapeHtml(it.category)} • ${escapeHtml(it.desc)}</div>
-          <div class="path">${escapeHtml(it.path)}</div>
-        </div>
-      `;
+          <div class="name">${escapeHtml(c.name)}</div>
+          <div class="desc">${escapeHtml(c.category)} · ${escapeHtml(c.desc)}</div>
+        </div>`;
       grid.appendChild(a);
     }
 
-    const total = FILES.filter(f => f.toLowerCase() !== "index.html").length;
-    countText.textContent = `Visualizzati ${items.length} di ${total} file.`;
-    if (items.length === 0){
-      grid.innerHTML = `
-        <div class="card" style="padding:14px; border-radius:16px; border:1px solid var(--line);">
-          Nessun risultato. Prova a cambiare ricerca o categoria.
-        </div>
-      `;
+    countText.textContent = `Visualizzati ${filtered.length} di ${COURSES.length} corsi.`;
+    if (filtered.length === 0) {
+      grid.innerHTML = `<div class="card" style="padding:14px; border-radius:16px; border:1px solid var(--line);">Nessun risultato. Prova a cambiare ricerca.</div>`;
     }
   }
 
-  function escapeHtml(str){
-    return String(str)
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
-  }
-
   q.addEventListener("input", render);
-  cat.addEventListener("change", render);
   render();
 })();
 </script>
