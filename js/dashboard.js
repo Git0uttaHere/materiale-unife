@@ -18,6 +18,20 @@
     return url;
   }
 
+  function getDriveFileId(url) {
+    if (!url || !url.includes("drive.google.com")) return null;
+    const fileMatch = url.match(/\/file\/d\/([^/]+)/);
+    if (fileMatch) return fileMatch[1];
+    const idMatch = url.match(/[?&]id=([^&]+)/);
+    if (idMatch) return idMatch[1];
+    return null;
+  }
+
+  function getDriveDownloadUrl(url) {
+    const id = getDriveFileId(url);
+    return id ? `https://drive.google.com/uc?export=download&id=${id}` : null;
+  }
+
   // ── Video Section ──
 
   function initVideoSection(cfg) {
@@ -28,6 +42,7 @@
     const prevBtn = sectionEl.querySelector(".prev-btn");
     const nextBtn = sectionEl.querySelector(".next-btn");
     const markBtn = sectionEl.querySelector(".mark-seen-btn");
+    const downloadBtn = sectionEl.querySelector(".video-download-btn");
 
     let currentIndex = 0;
     let seenIds = new Set();
@@ -81,7 +96,17 @@
     function loadVideo(index) {
       if (index < 0 || index >= videos.length) return;
       currentIndex = index;
-      player.src = transformDriveUrl(videos[index].url);
+      const url = videos[index].url;
+      player.src = transformDriveUrl(url);
+      if (downloadBtn) {
+        const dl = getDriveDownloadUrl(url);
+        if (dl) {
+          downloadBtn.href = dl;
+          downloadBtn.hidden = false;
+        } else {
+          downloadBtn.hidden = true;
+        }
+      }
       positionEl.textContent = `${index + 1} / ${videos.length}`;
       renderPlaylist();
       const active = playlist.querySelector(".playlist-item.active");
@@ -207,7 +232,7 @@
 
     sectionEl.querySelectorAll(".resource-card").forEach((card) => {
       card.addEventListener("click", (e) => {
-        if (e.target.closest(".resource-open")) return;
+        if (e.target.closest(".resource-open") || e.target.closest(".resource-download")) return;
         const url = card.dataset.url || "";
         const title = card.dataset.title || "File";
         const date = card.dataset.date || "N/D";
@@ -262,7 +287,10 @@
             <span class="video-position">1 / ${section.videos.length}</span>
             <button class="nav-btn next-btn" aria-label="Video successivo">▶</button>
           </div>
-          <button class="btn btn-small mark-seen-btn">✓ Segna come visto</button>
+          <div class="video-actions">
+            <a class="btn btn-small video-download-btn" href="#" target="_blank" rel="noopener" hidden>⬇ Scarica</a>
+            <button class="btn btn-small mark-seen-btn">✓ Segna come visto</button>
+          </div>
         </div>
         <div class="playlist"></div>
       </div>`;
@@ -278,12 +306,20 @@
     card.dataset.type = res.type || "";
     if (res.noPreview) card.dataset.noPreview = "true";
 
+    const downloadUrl = getDriveDownloadUrl(res.url);
+    const downloadLink = downloadUrl
+      ? `<a class="resource-download" href="${esc(downloadUrl)}" target="_blank" rel="noopener" title="Scarica">⬇</a>`
+      : "";
+
     card.innerHTML = `
       <div class="resource-icon ${esc(res.iconClass || "ext-pdf")}">${esc(res.icon || "PDF")}</div>
       <div class="resource-content">
         <div class="resource-header">
           <div class="resource-title">${esc(res.title)}</div>
-          <a class="resource-open" href="${esc(res.url)}" target="_blank" rel="noopener" title="Apri">↗</a>
+          <div class="resource-actions">
+            ${downloadLink}
+            <a class="resource-open" href="${esc(res.url)}" target="_blank" rel="noopener" title="Apri">↗</a>
+          </div>
         </div>
         <div class="resource-meta">
           <span class="resource-pill">${esc(res.type || "")}</span>

@@ -115,6 +115,13 @@ main {
   flex-wrap: wrap;
 }
 
+.video-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .video-nav {
   display: flex;
   align-items: center;
@@ -477,13 +484,21 @@ main {
   text-overflow: ellipsis;
 }
 
-.resource-open {
+.resource-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.resource-open,
+.resource-download {
   font-size: 0.8rem;
   color: #6b7280;
   text-decoration: none;
-  flex-shrink: 0;
 }
-.resource-open:hover { color: #1e40af; text-decoration: underline; }
+.resource-open:hover,
+.resource-download:hover { color: #1e40af; text-decoration: underline; }
 
 .resource-meta {
   font-size: 0.75rem;
