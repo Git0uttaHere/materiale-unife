@@ -20,7 +20,7 @@
 
   function getDriveFileId(url) {
     if (!url || !url.includes("drive.google.com")) return null;
-    const fileMatch = url.match(/\/file\/d\/([^/]+)/);
+    const fileMatch = url.match(/\/file(?:\/u\/\d+)?\/d\/([^/?]+)/);
     if (fileMatch) return fileMatch[1];
     const idMatch = url.match(/[?&]id=([^&]+)/);
     if (idMatch) return idMatch[1];
@@ -240,7 +240,7 @@
 
         if (noPreview) {
           preview.src = "";
-          info.textContent = `${title} · anteprima non disponibile (apri con ↗)`;
+          info.textContent = `${title} · anteprima non disponibile`;
           return;
         }
         preview.src = transformDriveUrl(url);
@@ -308,22 +308,20 @@
 
     const downloadUrl = getDriveDownloadUrl(res.url);
     const downloadLink = downloadUrl
-      ? `<a class="resource-download" href="${esc(downloadUrl)}" target="_blank" rel="noopener" title="Scarica">⬇</a>`
+      ? `<a class="btn btn-small resource-download" href="${esc(downloadUrl)}" target="_blank" rel="noopener">Download</a>`
       : "";
 
     card.innerHTML = `
       <div class="resource-icon ${esc(res.iconClass || "ext-pdf")}">${esc(res.icon || "PDF")}</div>
       <div class="resource-content">
-        <div class="resource-header">
-          <div class="resource-title">${esc(res.title)}</div>
-          <div class="resource-actions">
-            ${downloadLink}
-            <a class="resource-open" href="${esc(res.url)}" target="_blank" rel="noopener" title="Apri">↗</a>
-          </div>
-        </div>
+        <div class="resource-title">${esc(res.title)}</div>
         <div class="resource-meta">
           <span class="resource-pill">${esc(res.type || "")}</span>
           <span class="resource-date">${esc(res.date || "N/D")}</span>
+        </div>
+        <div class="resource-actions">
+          ${downloadLink}
+          <a class="btn btn-small resource-open" href="${esc(res.url)}" target="_blank" rel="noopener">Apri</a>
         </div>
       </div>`;
     return card;
